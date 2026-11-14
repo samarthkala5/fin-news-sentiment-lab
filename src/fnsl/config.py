@@ -60,6 +60,11 @@ UNPARSEABLE = -1
 SPLIT_NAMES = ("train", "val", "test")
 SPLIT_FRACTIONS = {"train": 0.70, "val": 0.15, "test": 0.15}
 
+# --- Smoke runs ------------------------------------------------------------------------
+# Every --smoke run uses the same tiny subsets (see data.load_run_splits), so smoke
+# predictions from different scripts share test ids and can still be paired.
+SMOKE_SIZES = {"train": 200, "val": 64, "test": 64}
+
 
 def set_seed(seed: int = SEED) -> None:
     """Seed Python, NumPy and any deep-learning framework that is already imported.

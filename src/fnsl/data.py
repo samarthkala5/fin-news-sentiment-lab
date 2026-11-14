@@ -195,6 +195,19 @@ def load_splits(splits_dir: Path | None = None) -> dict[str, pd.DataFrame]:
     return {name: load_split(name, splits_dir) for name in config.SPLIT_NAMES}
 
 
+def load_run_splits(smoke: bool = False, splits_dir: Path | None = None) -> dict[str, pd.DataFrame]:
+    """The splits a training script should use.
+
+    Full runs get the complete fixed splits. Smoke runs get small subsets of the same
+    files (sizes in config.SMOKE_SIZES); because the subsets are deterministic, every
+    script's smoke predictions cover the same test ids.
+    """
+    splits = load_splits(splits_dir)
+    if smoke:
+        splits = {name: smoke_subset(df, config.SMOKE_SIZES[name]) for name, df in splits.items()}
+    return splits
+
+
 def split_report_path(splits_dir: Path | None = None) -> Path:
     splits_dir = Path(splits_dir) if splits_dir is not None else config.SPLITS_DIR
     return splits_dir / "split_report.json"
