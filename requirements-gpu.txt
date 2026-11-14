@@ -7,6 +7,10 @@
 #
 # Unsloth 2026.11 accepts transformers<=5.17.0, trl<=1.15.0 and datasets<5, so the
 # ranges below are kept inside those limits (same as requirements-local.txt).
+#
+# If this install fails or replaces the preinstalled torch, notebooks/colab_runner.ipynb
+# shows an (untested) fallback that installs Unsloth with --no-deps, as Unsloth's own
+# Colab notebooks do. On Kaggle pick "GPU T4 x2": Unsloth/Triton do not support the P100.
 -r requirements.txt
 unsloth>=2026.11
 transformers>=5.2,<=5.17.0
