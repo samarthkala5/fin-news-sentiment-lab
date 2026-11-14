@@ -89,7 +89,8 @@ Template:
   balanced disagreements, b = 15 and c = 15, got McNemar p = 0.855 instead of 1.
 - Cause: statsmodels 0.15 `mcnemar(exact=False, correction=True)` applies the continuity
   correction (|b − c| − 1)² / (b + c) even when b = c, which gives 1/30 instead of 0.
-  With b = c = 0 the same formula is 0/0 = NaN.
+  With b = c = 0 it is (0 − 1)² / 0 = 1/0 = infinity, so statsmodels returns p = 0.0:
+  identical predictions would look maximally significant.
 - Fix: `fnsl.stats.mcnemar_test` returns p = 1.0 directly when b == c and uses
   statsmodels otherwise. Tests cover 3/3 (exact test), 15/15 (chi-square) and identical
   predictions.

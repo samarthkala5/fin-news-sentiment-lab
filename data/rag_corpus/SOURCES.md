@@ -19,14 +19,16 @@ statement text is chunked and embedded.
 | `fed_fomc_statement_2023-07-26.txt` | Federal Reserve issues FOMC statement | 2023-07-26 | https://www.federalreserve.gov/newsevents/pressreleases/monetary20230726a.htm | Public domain (Fed) | "U.S. banking system is sound and resilient"; target range raised to 5-1/4 to 5-1/2 percent |
 | `fed_fomc_statement_2024-09-18.txt` | Federal Reserve issues FOMC statement | 2024-09-18 | https://www.federalreserve.gov/newsevents/pressreleases/monetary20240918a.htm | Public domain (Fed) | cut by 1/2 percentage point to 4-3/4 to 5 percent; Michelle W. Bowman preferred a 1/4 point cut |
 | `fed_fomc_statement_2026-10-28.txt` | Federal Reserve issues FOMC statement | 2026-10-28 | https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm | Public domain (Fed) | target range kept at 3-3/4 to 4 percent; 10 – 2 vote; Lisa D. Cook and Beth M. Hammack preferred a 1/4 point rise |
-| `ecb_monetary_policy_decisions_2022-07-21.txt` | Monetary policy decisions (press release) | 2022-07-21 | https://www.ecb.europa.eu/press/pr/date/2022/html/ecb.mp220721~53e5bdd317.en.html | © ECB, reproduced with acknowledgement | key ECB rates raised by 50 basis points (0.50%, 0.75%, 0.00% from 27 July 2022); Transmission Protection Instrument (TPI) approved |
-| `ecb_monetary_policy_decisions_2024-06-06.txt` | Monetary policy decisions (press release) | 2024-06-06 | https://www.ecb.europa.eu/press/pr/date/2024/html/ecb.mp240606~2148ecdb3c.en.html | © ECB, reproduced with acknowledgement | key ECB rates lowered by 25 basis points (4.25%, 4.50%, 3.75% from 12 June 2024); PEPP holdings cut by €7.5 billion per month in the second half of 2024; staff projections |
-| `ecb_monetary_policy_decisions_2026-10-29.txt` | Monetary policy decisions (press release) | 2026-10-29 | https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.mp261029~9a493adf17.en.html | © ECB, reproduced with acknowledgement | key ECB rates unchanged (deposit facility 2.50%, main refinancing 2.65%, marginal lending 2.90%); energy shock |
+| `ecb_monetary_policy_decisions_2022-07-21.txt` | Monetary policy decisions (ECB press release) | 2022-07-21 | https://www.ecb.europa.eu/press/pr/date/2022/html/ecb.mp220721~53e5bdd317.en.html | © ECB, reproduced with acknowledgement | key ECB rates raised by 50 basis points (0.50%, 0.75%, 0.00% from 27 July 2022); Transmission Protection Instrument (TPI) approved |
+| `ecb_monetary_policy_decisions_2024-06-06.txt` | Monetary policy decisions (ECB press release) | 2024-06-06 | https://www.ecb.europa.eu/press/pr/date/2024/html/ecb.mp240606~2148ecdb3c.en.html | © ECB, reproduced with acknowledgement | key ECB rates lowered by 25 basis points (4.25%, 4.50%, 3.75% from 12 June 2024); PEPP holdings cut by €7.5 billion per month in the second half of 2024; staff projections |
+| `ecb_monetary_policy_decisions_2026-10-29.txt` | Monetary policy decisions (ECB press release) | 2026-10-29 | https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.mp261029~9a493adf17.en.html | © ECB, reproduced with acknowledgement | key ECB rates unchanged (deposit facility 2.50%, main refinancing 2.65%, marginal lending 2.90%); energy shock |
 
 Watch out when writing `data/rag_eval.csv`: two Fed statements (2015-12-16 and
 2022-03-16) both raise the target range to 1/4 to 1/2 percent, and two (2008-12-16 and
 2020-03-15) both set it to 0 to 1/4 percent. A question about those ranges needs another
 detail (for example "coronavirus" or "Ukraine") to be answerable from exactly one file.
+All three ECB releases mention the Transmission Protection Instrument; only 2022-07-21
+approves it, so a TPI question should ask about the approval.
 Dates are not part of the embedded text either (FOMC statements do not repeat their own
 date; it is only in the file name and the `Date:` line, which are metadata), so ask about
 content: "What did the Fed decide in October 2026?" gives the retriever nothing

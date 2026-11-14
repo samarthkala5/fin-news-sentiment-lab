@@ -98,8 +98,8 @@ def mcnemar_test(
         # The discordant rows split exactly evenly (also when b = c = 0, e.g. identical
         # predictions), which is exactly what "equally good" predicts, so p = 1. Set
         # directly because statsmodels' corrected chi-square gives (|b - c| - 1)^2 / (b + c)
-        # = 1 / (b + c) > 0 here, so p < 1 (and 0 / 0 = NaN when b = c = 0). R's
-        # mcnemar.test skips the correction when b = c; the exact test already gives p = 1.
+        # = 1 / (b + c) > 0 here, so p < 1 (and 1 / 0 = inf, so p = 0, when b = c = 0).
+        # R's mcnemar.test skips the correction when b = c; the exact test already gives 1.
         statistic = float(b) if exact else 0.0
         p_value = 1.0
     else:

@@ -4,10 +4,10 @@ Compare classical ML, Keras, PyTorch and LoRA-fine-tuned LLM approaches on finan
 news sentiment with proper statistical testing, plus a small LangChain RAG over public
 central-bank text.
 
-> **Every number in this README is generated** from files in `results/` and `data/splits/`
-> by `scripts/make_results_table.py --update-readme`. Nothing between the
-> `<!-- BEGIN:... -->` / `<!-- END:... -->` markers is written by hand. Models that have
-> not been trained yet are shown as *not run yet*.
+> **Every number between the `<!-- BEGIN:... -->` / `<!-- END:... -->` markers is
+> generated** from files in `results/` and `data/splits/` by
+> `scripts/make_results_table.py --update-readme`; nothing between the markers is written
+> by hand. Models that have not been trained yet are shown as *not run yet*.
 
 ## Problem
 
@@ -23,8 +23,9 @@ English finance tweets labelled Bearish / Bullish / Neutral.
 
 - **License:** MIT (stated on the dataset card).
 - **Version:** Hub revision `ccbe24de388e287beb92dd393a335c376b350ac3`, pinned in `src/fnsl/config.py`.
-- **Note:** the dataset card lists 9,938 / 2,486 rows, but the pinned revision actually
-  contains 9,543 (train) + 2,388 (validation) rows.
+- **Note:** the row counts on the dataset card do not match the pinned revision; the
+  counts in the generated block below are what that revision actually contains
+  (`scripts/prepare_data.py` downloads it).
 - **Cleaning** (`src/fnsl/data.py`): normalise whitespace, drop empty and URL-only texts,
   drop near-duplicates (same text after lower-casing and removing links), and drop
   groups of near-duplicates with conflicting labels. See `DEBUG_LOG.md`, Day 1.
@@ -55,7 +56,8 @@ _Source: `data/splits/split_report.json` (written by `scripts/prepare_data.py`).
 
 All models are scored on the same fixed test split. Macro-F1 is the main metric (each
 class counts equally; Neutral is about two thirds of the data). 95% confidence intervals
-come from 1,000+ bootstrap resamples of the test set (`scripts/compare_models.py`).
+come from bootstrap resamples of the test set (`scripts/compare_models.py`; the number of
+resamples is in the note under the table).
 
 <!-- BEGIN:RESULTS -->
 | Model | Macro-F1 | 95% CI | Accuracy | F1 Bearish | F1 Bullish | F1 Neutral | n_test | Train time (s) | Commit | Note |
@@ -150,7 +152,8 @@ pytest -m heavy                    # needs requirements-local.txt; downloads sma
 
 `data/rag_eval.csv` has two columns, `question,source_file` (a file name in
 `data/rag_corpus/`). Put a question that contains a comma in double quotes. The three rows
-whose question starts with `EXAMPLE` only show the format and are never scored.
+whose question starts with `EXAMPLE` only show the format: real runs skip them, and only
+the pipeline check `--smoke --include-examples` (written to `results/smoke/`) uses them.
 
 Every training script also takes `--smoke` (tiny data, 1 epoch, CPU). Smoke outputs go to
 `results/smoke/` and `checkpoints/smoke/` (both gitignored) and are never used as results:
@@ -169,7 +172,9 @@ python scripts/compare_models.py --smoke
 
 [`notebooks/colab_runner.ipynb`](notebooks/colab_runner.ipynb)
 ([open in Colab](https://colab.research.google.com/github/samarthkala5/fin-news-sentiment-lab/blob/main/notebooks/colab_runner.ipynb),
-which works once this code is on `main` and the repository is public) is a thin runner. It checks the GPU,
+which works once this code is on `main` and the repository is public) is a thin runner.
+Until this code is merged into `main`, set `BRANCH = "claude/project-skeleton-build-dj1aj6"`
+in its clone step. It checks the GPU,
 clones the repo (`REPO_URL` / `BRANCH`; never paste a token), installs
 `requirements-gpu.txt`, runs the scripts below and zips `results/metrics`,
 `results/predictions` and `results/figures` for download. On Colab pick
@@ -212,8 +217,8 @@ fin-news-sentiment-lab/
 │   ├── splits/                      # fixed train/val/test CSVs + split_report.json
 │   ├── rag_corpus/                  # public central-bank texts + SOURCES.md
 │   └── rag_eval.csv                 # hand-written retrieval questions
-├── src/fnsl/                        # all logic lives here
-├── scripts/                         # thin CLI wrappers (every training script has --smoke)
+├── src/fnsl/                        # reusable modules: data, models, metrics, stats, RAG
+├── scripts/                         # command-line entry points (every training script has --smoke)
 ├── notebooks/                       # colab_runner.ipynb, kaggle_report.ipynb
 ├── results/                         # metrics/*.json, predictions/*.csv, figures/
 └── tests/
@@ -221,7 +226,8 @@ fin-news-sentiment-lab/
 
 ## Limitations
 
-- **Small, single dataset:** about 11.8k short English tweets from one source; results
+- **Small, single dataset:** short English tweets from one source (sizes in the Dataset
+  section); results
   may not transfer to longer news articles, other languages or other periods.
 - **Short texts:** most posts are one headline, so context that would disambiguate
   sentiment is often missing.
@@ -238,4 +244,5 @@ fin-news-sentiment-lab/
 ## Logs
 
 - `DEBUG_LOG.md`: one real bug and fix per day.
-- `reading_log.md`: FinBERT, LoRA and RAG papers, summarised in my own words.
+- `reading_log.md`: my own summaries of the FinBERT, LoRA and RAG papers (template, to be
+  filled in as the plan reaches each paper).
