@@ -148,7 +148,13 @@ def evaluate_on_test(
         train_time_s=info["train_time_s"],
         seed=info["seed"],
         smoke=smoke,
-        extra={"test_loss": test_loss, "checkpoint": repo_relative(checkpoint)},
+        extra={
+            "test_loss": test_loss,
+            "checkpoint": repo_relative(checkpoint),
+            # git_commit (added by save_results) is the code that ran this evaluation; with
+            # --eval-only that can differ from the code the weights were trained with.
+            "train_git_commit": info.get("git_commit"),
+        },
     )
 
 
@@ -249,6 +255,7 @@ def train(args: argparse.Namespace) -> dict:
             "run_name": run_name,
             "seed": args.seed,
             "smoke": args.smoke,
+            "git_commit": metrics.git_commit(),  # the code these weights were trained with
             "train_time_s": train_time,
             "params": {
                 **hyperparams,

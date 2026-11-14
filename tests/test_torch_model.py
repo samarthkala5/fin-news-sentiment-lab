@@ -272,6 +272,10 @@ def test_train_script_smoke_then_eval_only(tmp_results, tmp_path, tiny_model_dir
     reloaded = metrics.load_predictions(smoke_dir / "predictions" / "reloaded.csv")
     assert reloaded["pred"].tolist() == predictions["pred"].tolist()
     assert again["test_loss"] == record["test_loss"]
+    # The training commit travels with the checkpoint, so a re-evaluation still names it.
+    info = json.loads((checkpoints / "best" / "training_info.json").read_text())
+    assert info["git_commit"] and again["train_git_commit"] == info["git_commit"]
+    assert record["train_git_commit"] == info["git_commit"]
     assert not (tmp_results / "metrics").exists()
 
 
@@ -283,7 +287,9 @@ def test_train_script_reloads_the_best_validation_epoch_not_the_last(
     # Fake validation macro-F1 per epoch, so that epoch 2 of 3 is the best one.
     val_scores = iter([0.2, 0.9, 0.1])
     fake_metrics = types.SimpleNamespace(
-        macro_f1=lambda y_true, y_pred: next(val_scores), save_results=metrics.save_results
+        macro_f1=lambda y_true, y_pred: next(val_scores),
+        save_results=metrics.save_results,
+        git_commit=metrics.git_commit,
     )
     monkeypatch.setattr(script, "metrics", fake_metrics)
     # Remember the weights after every epoch.
