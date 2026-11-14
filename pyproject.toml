@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fnsl"
+version = "0.1.0"
+description = "Financial News Sentiment Lab: classical ML, Keras, PyTorch and LoRA LLMs on financial news sentiment, with statistical testing and a small RAG."
+readme = "README.md"
+requires-python = ">=3.11"
+# Dependencies are managed in requirements*.txt so that CI, laptop and Colab can
+# install different subsets. `pip install -e . --no-deps` just makes `import fnsl` work.
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["data", "results", "mlruns", "cache", "checkpoints", ".venv"]
+
+[tool.ruff.lint]
+# E/W: pycodestyle, F: pyflakes, I: import sorting, B: bugbear, UP: modern syntax
+select = ["E", "W", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# Notebooks import inside cells after setup cells (clone, pip install).
+"*.ipynb" = ["E402"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["fnsl"]

@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.env
+.ipynb_checkpoints/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Experiment tracking (local only)
+mlruns/
+mlflow.db
+mlartifacts/
+
+# Data and model artefacts that are large or re-downloadable
+data/raw/
+cache/
+checkpoints/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.h5
+*.keras
+*.ckpt
+outputs/
+unsloth_compiled_cache/
+wandb/
+
+# Smoke-test outputs are never final results
+results/smoke/
+results.zip
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

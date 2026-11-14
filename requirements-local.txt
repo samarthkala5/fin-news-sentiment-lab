@@ -1,0 +1,18 @@
+# Everything needed on a laptop CPU: sentence-transformer embeddings, the RAG
+# pipeline, and --smoke runs of the Keras / PyTorch / LoRA training scripts.
+#
+# Install the CPU build of torch FIRST, otherwise pip may pull the multi-GB CUDA build:
+#   pip install "torch>=2.4,<2.15" --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r requirements-local.txt
+#
+# The Hugging Face version ranges below match what Unsloth accepts, so the code
+# tested locally is the same code that runs on Colab (see requirements-gpu.txt).
+-r requirements.txt
+torch>=2.4,<2.15
+transformers>=5.2,<=5.17.0
+sentence-transformers>=5.0,<7
+peft>=0.18
+trl>=1.0,<=1.15.0
+accelerate>=1.4
+tensorflow>=2.18,<3
+langchain-huggingface>=1.0,<2

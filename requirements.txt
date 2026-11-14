@@ -1,0 +1,21 @@
+# Core CPU-only dependencies.
+# Enough for CI, data preparation, the TF-IDF baseline, statistics,
+# results tables and the RAG unit tests (which use a fake embedding, no torch).
+#
+# Heavy libraries (torch, transformers, tensorflow, sentence-transformers) live in
+# requirements-local.txt (laptop CPU) and requirements-gpu.txt (Colab/Kaggle).
+numpy>=1.26,<3
+pandas>=2.2,<4
+scipy>=1.11
+scikit-learn>=1.5,<2
+statsmodels>=0.14
+matplotlib>=3.8
+# <5 and >=4.7 keeps us compatible with Unsloth and TRL (see requirements-gpu.txt).
+datasets>=4.7,<5
+mlflow>=3.0,<4
+langchain-core>=1.0,<2
+langchain-community>=0.4,<0.5
+langchain-text-splitters>=1.0,<2
+faiss-cpu>=1.8
+pytest>=8
+ruff>=0.6

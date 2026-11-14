@@ -1,0 +1,17 @@
+# GPU runtime: Google Colab or Kaggle (T4 / L4 / A100).
+# torch (CUDA build) and tensorflow are preinstalled on both platforms, so they are
+# not listed here; Unsloth pulls a compatible torch if the preinstalled one is too new.
+#
+#   pip install -r requirements-gpu.txt
+#   pip install -e . --no-deps
+#
+# Unsloth 2026.11 accepts transformers<=5.17.0, trl<=1.15.0 and datasets<5, so the
+# ranges below are kept inside those limits (same as requirements-local.txt).
+-r requirements.txt
+unsloth>=2026.11
+transformers>=5.2,<=5.17.0
+sentence-transformers>=5.0,<7
+peft>=0.18
+trl>=1.0,<=1.15.0
+accelerate>=1.4
+bitsandbytes>=0.45.5
