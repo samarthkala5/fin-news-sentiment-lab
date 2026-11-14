@@ -1,0 +1,67 @@
+{
+  "dataset": "zeroshot/twitter-financial-news-sentiment",
+  "revision": "ccbe24de388e287beb92dd393a335c376b350ac3",
+  "license": "MIT",
+  "seed": 42,
+  "fractions": {
+    "train": 0.7,
+    "val": 0.15,
+    "test": 0.15
+  },
+  "cleaning": {
+    "n_raw": 11931,
+    "dropped_empty": 0,
+    "dropped_url_only": 3,
+    "dropped_conflicting_labels": 6,
+    "dropped_duplicates": 147,
+    "n_clean": 11775
+  },
+  "sizes": {
+    "train": 8241,
+    "val": 1767,
+    "test": 1767
+  },
+  "class_balance": {
+    "all": {
+      "n": 11775,
+      "Bearish": 1765,
+      "Bearish_%": 15.0,
+      "Bullish": 2380,
+      "Bullish_%": 20.2,
+      "Neutral": 7630,
+      "Neutral_%": 64.8
+    },
+    "train": {
+      "n": 8241,
+      "Bearish": 1235,
+      "Bearish_%": 15.0,
+      "Bullish": 1666,
+      "Bullish_%": 20.2,
+      "Neutral": 5340,
+      "Neutral_%": 64.8
+    },
+    "val": {
+      "n": 1767,
+      "Bearish": 265,
+      "Bearish_%": 15.0,
+      "Bullish": 357,
+      "Bullish_%": 20.2,
+      "Neutral": 1145,
+      "Neutral_%": 64.8
+    },
+    "test": {
+      "n": 1767,
+      "Bearish": 265,
+      "Bearish_%": 15.0,
+      "Bullish": 357,
+      "Bullish_%": 20.2,
+      "Neutral": 1145,
+      "Neutral_%": 64.8
+    }
+  },
+  "labels": {
+    "0": "Bearish",
+    "1": "Bullish",
+    "2": "Neutral"
+  }
+}
