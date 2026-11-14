@@ -1,0 +1,100 @@
+{
+  "model": "tfidf_logreg",
+  "dataset": "zeroshot/twitter-financial-news-sentiment",
+  "n_test": 1767,
+  "macro_f1": 0.7389079170161041,
+  "accuracy": 0.8041878890775326,
+  "per_class_f1": {
+    "Bearish": 0.6332737030411449,
+    "Bullish": 0.7077363896848138,
+    "Neutral": 0.8757136583223539
+  },
+  "seed": 42,
+  "train_time_s": 3.67,
+  "params": {
+    "C": 3.0,
+    "class_weight": "balanced",
+    "ngram_range": [
+      1,
+      2
+    ],
+    "min_df": 2,
+    "sublinear_tf": true,
+    "max_iter": 2000,
+    "val_macro_f1": 0.7332745532114361
+  },
+  "git_commit": "18e5768",
+  "timestamp": "2026-11-14T07:34:44+00:00",
+  "smoke": false,
+  "confusion_matrix": [
+    [
+      177,
+      21,
+      67
+    ],
+    [
+      42,
+      247,
+      68
+    ],
+    [
+      75,
+      73,
+      997
+    ]
+  ],
+  "n_unparseable": 0,
+  "val_grid": [
+    {
+      "C": 0.1,
+      "class_weight": null,
+      "val_macro_f1": 0.39176993481224304
+    },
+    {
+      "C": 0.1,
+      "class_weight": "balanced",
+      "val_macro_f1": 0.6731130322879014
+    },
+    {
+      "C": 0.3,
+      "class_weight": null,
+      "val_macro_f1": 0.5633892014969609
+    },
+    {
+      "C": 0.3,
+      "class_weight": "balanced",
+      "val_macro_f1": 0.6910725659919891
+    },
+    {
+      "C": 1.0,
+      "class_weight": null,
+      "val_macro_f1": 0.6758731929235501
+    },
+    {
+      "C": 1.0,
+      "class_weight": "balanced",
+      "val_macro_f1": 0.7246959883197919
+    },
+    {
+      "C": 3.0,
+      "class_weight": null,
+      "val_macro_f1": 0.7166663156913194
+    },
+    {
+      "C": 3.0,
+      "class_weight": "balanced",
+      "val_macro_f1": 0.7332745532114361
+    },
+    {
+      "C": 10.0,
+      "class_weight": null,
+      "val_macro_f1": 0.7249148111886301
+    },
+    {
+      "C": 10.0,
+      "class_weight": "balanced",
+      "val_macro_f1": 0.7282287247982314
+    }
+  ],
+  "n_features": 16172
+}
