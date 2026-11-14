@@ -5,8 +5,8 @@
   "seed": 42,
   "smoke": false,
   "predictions_dir": "results/predictions",
-  "git_commit": "9d28770",
-  "timestamp": "2026-11-14T10:52:42+00:00",
+  "git_commit": "cc1abac",
+  "timestamp": "2026-11-14T13:03:28+00:00",
   "models": {
     "tfidf_logreg": {
       "n": 1767,

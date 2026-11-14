@@ -77,7 +77,7 @@ McNemar's test on paired test-set predictions for every pair of models
 (`results/metrics/comparison.json`).
 
 <!-- BEGIN:COMPARISON -->
-_No pairs compared yet. Models with test predictions: `tfidf_logreg`. A pair needs two models with predictions on the same test ids._
+_No pairs compared yet. Models with test predictions: `tfidf_logreg`. A pair needs two different models with predictions on the same test ids (seed reruns of one model are summarised under the results table, not paired)._
 <!-- END:COMPARISON -->
 
 ### Clustering sentence embeddings (unsupervised)
