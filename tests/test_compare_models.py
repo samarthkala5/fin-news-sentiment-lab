@@ -138,6 +138,34 @@ def test_seed_reruns_are_summarised_not_paired(tmp_results):
     assert len(result["pairs"]) == 1 and result["seed_runs"] == {}
 
 
+def test_seed_reruns_without_base_or_not_lining_up(tmp_results):
+    folder = tmp_results / "predictions"
+    # No plain "distilbert" file: the first rerun represents the model in the pairs.
+    _write_predictions(folder, "distilbert_seed43", range(90), 0.8, seed=1)
+    _write_predictions(folder, "distilbert_seed44", range(90), 0.8, seed=2)
+    _write_predictions(folder, "tfidf_logreg", range(90), 0.7, seed=3)
+    # "Reruns" on other test rows or with contradicting labels are not seed variation:
+    # they stay ordinary models, and the mismatch is reported under skipped_pairs.
+    _write_predictions(folder, "llm_zeroshot", range(50), 0.6, seed=4)
+    _write_predictions(folder, "llm_zeroshot_seed7", range(50, 100), 0.6, seed=5)
+    _write_predictions(folder, "keras_bilstm", range(90), 0.8, seed=6)
+    _write_predictions(folder, "keras_bilstm_seed7", range(90), 0.8, seed=7, labels=[0] * 90)
+    result = compare_models.main(["--n-resamples", "50"])
+
+    assert list(result["seed_runs"]) == ["distilbert"]
+    runs = result["seed_runs"]["distilbert"]["runs"]
+    assert [(r["model"], r["seed"]) for r in runs] == [
+        ("distilbert_seed43", 43),
+        ("distilbert_seed44", 44),
+    ]
+    paired = {(p["model_a"], p["model_b"]) for p in result["pairs"]}
+    assert ("distilbert_seed43", "tfidf_logreg") in paired
+    assert not any("distilbert_seed44" in pair for pair in paired)
+    skipped = {(s["model_a"], s["model_b"]): s["reason"] for s in result["skipped_pairs"]}
+    assert "different test ids" in skipped[("llm_zeroshot", "llm_zeroshot_seed7")]
+    assert "labels disagree" in skipped[("keras_bilstm", "keras_bilstm_seed7")]
+
+
 def test_single_model_gives_cis_and_no_pairs(tmp_results):
     _write_predictions(tmp_results / "predictions", "only_model", range(60), 0.8, seed=7)
     result = compare_models.main(["--n-resamples", "50"])

@@ -175,41 +175,58 @@ def compare_pair(merged: pd.DataFrame, n_resamples: int, alpha: float, seed: int
     }
 
 
-def seed_rerun_base(name: str, names) -> str | None:
-    """The base model if `name` is a seed rerun ("<base>_seed<N>") of a model in `names`."""
+def model_and_seed(name: str) -> tuple[str, int]:
+    """("distilbert", 43) for "distilbert_seed43"; a plain name is the default seed-42 run."""
     match = SEED_RUN_RE.match(name)
-    if match and match["base"] in names:
-        return match["base"]
-    return None
+    return (match["base"], int(match["seed"])) if match else (name, config.SEED)
 
 
-def seed_summary(models: dict[str, dict]) -> dict[str, dict]:
-    """Mean and standard deviation of test macro-F1 over seed reruns of the same model.
+def find_seed_reruns(predictions: dict[str, pd.DataFrame]) -> dict[str, str]:
+    """{rerun: kept run} for files that are the same model trained with another seed.
+
+    Runs are grouped by model name (distilbert, distilbert_seed43, ...). One run per model
+    is kept for the pairwise tests: the plain name if it exists, otherwise the first
+    rerun. A rerun only counts if it covers the same test ids and labels as the kept run;
+    otherwise it stays an ordinary model, so the pair loop reports the mismatch under
+    skipped_pairs instead of hiding it in the seed summary.
+    """
+    kept, reruns = {}, {}
+    # Plain names sort first, so they become the kept run whenever they exist.
+    for name in sorted(predictions, key=lambda n: (SEED_RUN_RE.match(n) is not None, n)):
+        model = model_and_seed(name)[0]
+        if model not in kept:
+            kept[model] = name
+        elif align_pair(predictions[kept[model]], predictions[name])[0] is not None:
+            reruns[name] = kept[model]
+    return reruns
+
+
+def seed_summary(models: dict[str, dict], reruns: dict[str, str]) -> dict[str, dict]:
+    """Mean and standard deviation of test macro-F1 over the seed runs of each model.
 
     This is PROJECT_PLAN.md Day 7's optional "rerun DistilBERT with 3 seeds and report
     mean ± std". It shows how much the score moves just from the random seed (weight
     initialisation, data order). The std is the sample standard deviation (n - 1); with
     only 2-3 runs it is a rough guide, not a precise estimate.
     """
-    seeds: dict[str, dict[str, int]] = {}  # base model -> {run name: seed}
-    for name in models:
-        base = seed_rerun_base(name, models)
-        if base is not None:
-            seeds.setdefault(base, {base: config.SEED})[name] = int(SEED_RUN_RE.match(name)["seed"])
+    groups: dict[str, list[str]] = {}  # kept run -> every run of that model
+    for rerun, kept in reruns.items():
+        groups.setdefault(kept, [kept]).append(rerun)
     summary = {}
-    for base, runs in sorted(seeds.items()):
-        scores = [models[name]["macro_f1"] for name in runs]
-        summary[base] = {
+    for kept, names in sorted(groups.items()):
+        names = sorted(names, key=lambda name: model_and_seed(name)[1])  # by seed
+        scores = [models[name]["macro_f1"] for name in names]
+        summary[model_and_seed(kept)[0]] = {
             "runs": [
                 {
                     "model": name,
-                    "seed": s,
+                    "seed": model_and_seed(name)[1],
                     "n": models[name]["n"],
                     "macro_f1": models[name]["macro_f1"],
                 }
-                for name, s in runs.items()
+                for name in names
             ],
-            "n_runs": len(scores),
+            "n_runs": len(names),
             "macro_f1_mean": statistics.mean(scores),
             "macro_f1_std": statistics.stdev(scores),
         }
@@ -226,7 +243,8 @@ def build_comparison(
     }
     # Seed reruns get a CI each but no pairwise tests: testing a model against a retrained
     # copy of itself answers no question and only makes the Holm correction stricter.
-    primary = [name for name in sorted(predictions) if seed_rerun_base(name, predictions) is None]
+    reruns = find_seed_reruns(predictions)
+    primary = [name for name in sorted(predictions) if name not in reruns]
     pairs, skipped_pairs = [], []
     for name_a, name_b in itertools.combinations(primary, 2):
         merged, reason = align_pair(predictions[name_a], predictions[name_b])
@@ -247,7 +265,7 @@ def build_comparison(
         "models": models,
         "pairs": pairs,
         "skipped_pairs": skipped_pairs,
-        "seed_runs": seed_summary(models),
+        "seed_runs": seed_summary(models, reruns),
     }
 
 
@@ -270,7 +288,10 @@ def print_summary(result: dict[str, Any], out: Path) -> None:
     if result["pairs"]:
         print("\nPairs (b = only A right, c = only B right; diff = macro-F1 A - B):")
     else:
-        print("\nNo pairs compared: need at least two models with identical test ids.")
+        print(
+            "\nNo pairs compared: need at least two different models with identical test ids "
+            "(seed reruns of one model are summarised, not paired)."
+        )
     for pair in result["pairs"]:
         mc, diff = pair["mcnemar"], pair["macro_f1_diff"]
         verdict = "significant" if pair["significant_holm"] else "not significant"

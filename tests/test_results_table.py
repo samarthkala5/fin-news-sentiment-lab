@@ -427,6 +427,10 @@ def test_seed_runs_note_shows_mean_and_std_only_while_current():
     expected = "`distilbert`: macro-F1 0.780 ± 0.028 (mean ± sample std over 2 runs, seeds 42, 43)"
     assert expected in section
 
+    # The seeds shown are the ones saved in the metrics JSONs, not parsed from file names.
+    records[1]["seed"] = 44  # e.g. trained with --seed 44 but named distilbert_seed43
+    assert "seeds 42, 44)" in reporting.results_section(records, comparison, n_test_full=60)
+
     # A seed run retrained after compare_models.py ran: the old mean must not be shown.
     records[1] = _record("distilbert_seed43", 0.70, 60)
     section = reporting.results_section(records, comparison, n_test_full=60)

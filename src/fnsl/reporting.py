@@ -177,16 +177,20 @@ def seed_runs_note(comparison: dict | None, records: dict[str, dict]) -> str:
 
     A model's line is shown only if every one of its runs still matches its metrics JSON
     (consistent_ci); otherwise it says to rerun compare_models.py. '' when there are none.
+    The seeds shown are the ones saved in each run's metrics JSON.
     """
     lines = []
     for base, group in (comparison or {}).get("seed_runs", {}).items():
         names = [run["model"] for run in group["runs"]]
         if not all(n in records and consistent_ci(n, records[n], comparison) for n in names):
             lines.append(
-                f"- `{base}`: runs changed since the last comparison; rerun `{COMPARE_CMD}`"
+                f"- `{base}`: runs changed since the last comparison, or a run has no real "
+                f"metrics JSON; rerun `{COMPARE_CMD}`"
             )
             continue
-        seeds = ", ".join(str(run["seed"]) for run in group["runs"])
+        seeds = ", ".join(
+            str(records[run["model"]].get("seed", run["seed"])) for run in group["runs"]
+        )
         lines.append(
             f"- `{base}`: macro-F1 {fmt(group['macro_f1_mean'])} ± {fmt(group['macro_f1_std'])} "
             f"(mean ± sample std over {group['n_runs']} runs, seeds {seeds})"
@@ -366,7 +370,8 @@ def comparison_section(comparison: dict | None, records: list[dict]) -> str:
         names = ", ".join(f"`{m}`" for m in comparison["models"]) or "none"
         parts.append(
             f"_No pairs compared yet. Models with test predictions: {names}. A pair needs two "
-            "models with predictions on the same test ids._"
+            "different models with predictions on the same test ids (seed reruns of one model "
+            "are summarised under the results table, not paired)._"
         )
     if stale:
         parts.append(stale_pairs_note(stale))
@@ -614,7 +619,9 @@ def _significance(comparison: dict | None, records: dict[str, dict]) -> str:
     if stale:
         lines += [stale_pairs_note(stale), ""]
     if not pairs:
-        return "\n".join([*lines, "No current pairs: needs two models on the same test ids."])
+        return "\n".join(
+            [*lines, "No current pairs: needs two different models on the same test ids."]
+        )
     for p in pairs:
         diff = p["macro_f1_diff"]
         verdict = "significant" if p["significant_holm"] else "NOT significant"
