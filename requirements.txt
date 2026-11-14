@@ -19,5 +19,9 @@ langchain-text-splitters>=1.0,<2
 faiss-cpu>=1.8
 # Imported by scripts/push_to_hub.py --push (datasets already depends on it).
 huggingface_hub>=1.0
+# tests/test_notebooks.py: validate both notebooks and run kaggle_report.ipynb in CI.
+nbformat>=5.9
+nbclient>=0.10
+ipykernel>=6.29
 pytest>=8
 ruff>=0.6
