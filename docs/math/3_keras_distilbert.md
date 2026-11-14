@@ -447,7 +447,7 @@ Toy example (tokenizer output, not a result), using `EXAMPLE_TEXT` from `scripts
 
 Default `--max-length 64`. The comment above `DEFAULT_MAX_LENGTH` records the token lengths of the 8,241 train texts, with `[CLS]` and `[SEP]` counted: median 25, 95th percentile 50, 99th percentile 57, maximum 82. Only 13 texts (0.16%) are longer than 64, and what gets cut is almost always the tail of a t.co link. These figures, and the link tails, were re-checked with the tokenizer while writing this guide. `count_truncated` records the count as `params.train_texts_truncated`.
 
-**Pitfall (a difference from the Keras model).** DistilBERT receives the raw text, with URLs still in it. In a toy check, `https://t.co/Ab12Cd` became 11 word pieces, whereas the Keras pipeline deletes links. So the two models do not see identical inputs; be ready to say so.
+**Pitfall (a difference from the Keras model).** DistilBERT receives the raw text, with URLs still in it. In a toy check, `https://t.co/Ab12Cd` became 11 word pieces; the real links are longer, and the 4,311 links in the train split take 12 to 20 pieces each (median 15, a check you can rerun with the tokenizer). The Keras pipeline deletes links. So the two models do not see identical inputs; be ready to say so.
 
 ### 8.6.2 Dynamic padding, the attention mask and the DataLoader
 

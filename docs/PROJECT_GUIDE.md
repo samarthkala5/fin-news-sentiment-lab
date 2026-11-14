@@ -50,8 +50,8 @@ internship, so every claim must survive an interview:
 |---|---|
 | One fixed split, test set used once | `scripts/prepare_data.py` writes `data/splits/` once; `data.save_splits` refuses to overwrite; models are tuned on `val` only |
 | Never invent numbers | README result blocks and `RESUME_NUMBERS.md` are generated from results files by `scripts/make_results_table.py` |
-| Smoke runs are never results | `--smoke` writes only to `results/smoke/` and `checkpoints/smoke/` (gitignored); reporting ignores smoke files |
-| Every result is traceable | each results JSON stores `git_commit` (with `-dirty` if `src/` or `scripts/` differ from it), `seed`, `params` and `timestamp` |
+| Smoke runs are never results | `--smoke` writes results only to `results/smoke/` and `checkpoints/smoke/` (gitignored; the caches in `cache/` are shared); reporting ignores smoke files |
+| Every result is traceable | each per-model metrics JSON stores `git_commit` (with `-dirty` if `src/` or `scripts/` differ from it), `seed`, `params` and `timestamp`; the other results files (comparison, K-Means, RAG, LoRA training log) also store `git_commit` and `timestamp`, with their settings as top-level keys |
 | Differences must be significant, not just larger | bootstrap 95% CIs, McNemar's test and Holm correction in `scripts/compare_models.py` |
 | Code you can explain | explicit PyTorch loop (no `Trainer`), PCA from SVD by hand, small modules with comments |
 
@@ -64,7 +64,7 @@ internship, so every claim must survive an interview:
 | Hugging Face model card for the fine-tuned DistilBERT | Generator done (`scripts/push_to_hub.py`); needs the trained model |
 | Public Kaggle notebook | `notebooks/kaggle_report.ipynb` done; not published yet |
 | `reading_log.md` (3 papers), `DEBUG_LOG.md` (one bug per day) | Reading log is an empty template for your words; DEBUG_LOG has real bugs from the build, marked *(skeleton build)* |
-| `RESUME_NUMBERS.md` generated from results | Generator done; currently marks every bullet "do not use yet" |
+| `RESUME_NUMBERS.md` generated from results | Generator done; bullets 1 and 2 are marked "do not use yet"; bullet 3 has the test counts and asks you to check the Kaggle notebook, model card and CI by hand |
 
 ---
 
@@ -160,8 +160,10 @@ treats that as a hypothesis, not a result.
 - 236 tests (199 not marked `heavy`).
 - `pytest -m "not heavy"` and `ruff check .` pass locally and in GitHub Actions
   (Python 3.11, light dependencies only).
-- The 37 heavy tests (TensorFlow, PyTorch, LLM smoke, embeddings, notebook execution) pass
-  locally at `aaf142e`.
+- The 37 heavy tests pass locally at `aaf142e`. They cover Keras, PyTorch/DistilBERT, the
+  LLM smoke path, the sentence-transformer embeddings, and flag checks of the notebooks'
+  Keras and DistilBERT commands. The Kaggle report notebook is executed by two non-heavy
+  tests, so CI runs it.
 
 ---
 
@@ -199,9 +201,11 @@ python scripts/make_results_table.py --update-readme --count-tests
    python scripts/train_keras.py
    ```
 4. **Days 5–7, DistilBERT (Colab, T4 GPU).** In `notebooks/colab_runner.ipynb`, run the
-   smoke cell, then the full run, and optionally seeds 43 and 44. Download `results.zip`,
-   unzip it into the repo, refresh, and commit. Write the FinBERT entry in
-   `reading_log.md` (Day 6).
+   smoke cell, then the full run, and optionally seeds 43 and 44. Before the zip cell, set
+   `INCLUDE_DISTILBERT_CHECKPOINT = True` so the trained weights come back too (about
+   270 MB, per the notebook): the model-card push on Day 14 needs them, and Colab deletes
+   its files when the session ends. Download `results.zip`, unzip it into the repo,
+   refresh, and commit. Write the FinBERT entry in `reading_log.md` (Day 6).
 5. **Days 8–10, LLM (Colab).** Run zero-shot, LoRA train and LoRA eval in **one** session
    (a new session has no `checkpoints/`). Optionally run zero-shot on the full test split
    (`--n-test 0`) so McNemar can pair it. Copy back, refresh, commit. Write the LoRA entry
@@ -213,8 +217,8 @@ python scripts/make_results_table.py --update-readme --count-tests
    significant, the cost of each extra point of macro-F1). Write the RAG paper entry.
    Publish `notebooks/kaggle_report.ipynb` on Kaggle. Review the *(skeleton build)*
    entries in `DEBUG_LOG.md` and add your own.
-8. **Day 14.** In the notebook's zip cell, tick `INCLUDE_DISTILBERT_CHECKPOINT` when you
-   train DistilBERT, so you have the weights locally. Then push the model card:
+8. **Day 14.** Push the model card with the checkpoint you downloaded in step 4 (unzipped
+   into `checkpoints/distilbert/best`):
    ```bash
    python scripts/push_to_hub.py --push --repo-id <user>/<name> --checkpoint checkpoints/distilbert/best
    ```
@@ -224,13 +228,16 @@ python scripts/make_results_table.py --update-readme --count-tests
 ### 3.1 Decisions to make before the real runs
 
 All of these are optional: the current defaults work, and the chapters explain them. If you
-change something, judge it on the validation split only, and give the run its own
-`--run-name`. Every predictions file in `results/predictions/` enters the comparison, and
-more pairs make the Holm correction stricter.
+change something, judge it on the validation split only. `train_keras.py` and
+`train_distilbert.py` take `--run-name`, so a variant can sit next to the default run.
+`run_baseline.py` and `train_unsloth.py` always write `tfidf_logreg`, `llm_zeroshot` and
+`llm_lora`, so a variant run there replaces the existing files. Every predictions file in
+`results/predictions/` enters the comparison, and more pairs make the Holm correction
+stricter.
 
 | Question | Default now | Why it matters | Read |
 |---|---|---|---|
-| Strip `t.co` links for DistilBERT (and TF-IDF), as the Keras model does? | links kept | one link costs about a dozen WordPiece pieces of DistilBERT's 64-token budget; changing TF-IDF means a new baseline run | [8.2](math/1_data_baseline_stats.md#82-tf-idf--logistic-regression-baseline), [8.6](math/3_keras_distilbert.md#86-distilbert-fine-tuning-with-an-explicit-pytorch-loop) |
+| Strip `t.co` links for DistilBERT (and TF-IDF), as the Keras model does? | links kept | one link costs 12 to 20 WordPiece pieces of DistilBERT's 64-token budget (median 15 over the 4,311 links in the train split, a check you can rerun); changing TF-IDF means a new baseline run, which replaces the committed one | [8.2](math/1_data_baseline_stats.md#82-tf-idf--logistic-regression-baseline), [8.6](math/3_keras_distilbert.md#86-distilbert-fine-tuning-with-an-explicit-pytorch-loop) |
 | Use class weights in DistilBERT's loss, as Keras and the baseline do? | unweighted | minority classes drive macro-F1, and the models then differ in more than architecture; there is no flag yet, so this needs a small code change | [8.5](math/3_keras_distilbert.md#85-keras-bilstm-classifier), [8.6](math/3_keras_distilbert.md#86-distilbert-fine-tuning-with-an-explicit-pytorch-loop) |
 | Train the Keras `[UNK]` vector with a smaller vocabulary cap? | `--max-tokens 20000`, more than the number of training words, so `[UNK]` never trains | unknown validation and test words all map to an untrained vector; the chapter suggests a variant run | [8.5](math/3_keras_distilbert.md#85-keras-bilstm-classifier) |
 | Use one model-selection rule for both neural models? | Keras: class-weighted validation loss (early stopping); DistilBERT: validation macro-F1 per epoch | fine as it is, but be ready to explain the difference | [8.5](math/3_keras_distilbert.md#85-keras-bilstm-classifier), [8.6](math/3_keras_distilbert.md#86-distilbert-fine-tuning-with-an-explicit-pytorch-loop) |
@@ -305,7 +312,9 @@ flowchart TB
 - `src/fnsl/` holds reusable logic.
 - `scripts/` are the entry points: argument parsing, the training run, and writing
   results.
-- Notebooks only call scripts. No logic lives only in a notebook.
+- The Colab runner only calls scripts. The Kaggle report reads the committed results files
+  through `fnsl` helpers and plots them. No training or evaluation logic lives in a
+  notebook.
 
 ### 4.3 Repository layout
 
@@ -343,7 +352,7 @@ fin-news-sentiment-lab/
 │                                  make_results_table, build_rag, eval_rag, push_to_hub
 ├── notebooks/                     colab_runner.ipynb (GPU runs), kaggle_report.ipynb
 ├── results/                       metrics/*.json, predictions/*.csv, figures/*.png
-└── tests/                         one test file per module; `heavy` = needs big libraries
+└── tests/                         16 test files, by module or script; `heavy` = needs big libraries
 ```
 
 Gitignored, created when you run things:
@@ -404,19 +413,23 @@ different models can be paired, which tests the comparison code too.
   file. It adds `-dirty` if anything under `src/` or `scripts/` is modified *or new and
   uncommitted*, so a result can always be traced to the code that produced it. Commit
   your code first, then run.
-- **MLflow** logs parameters, metrics and figures to a local SQLite database in `mlruns/`
-  (not committed). It is optional; results files are the source of truth.
-- **Caches.** Embeddings are cached under a hash of model name + options + texts, and
-  re-running reproduces identical vectors. The RAG index is cached in `cache/rag_index/`.
-- **Limits.** GPU training is not bit-for-bit reproducible (cuDNN / cuBLAS). The
-  embedding model is not pinned to a Hub revision.
+- **MLflow** logs parameters and metrics to a local SQLite database (`mlruns/mlflow.db`)
+  and figures as files under `mlruns/artifacts/` (not committed). It is optional; results
+  files are the source of truth.
+- **Caches.** Embeddings are cached under a hash of model name + options + texts, so a
+  re-run reads the same vectors back. `build_rag.py` saves the demo index to
+  `cache/rag_index/default/` and rebuilds it on every run; `eval_rag.py` builds its own
+  index for each chunk size.
+- **Limits.** GPU training is not bit-for-bit reproducible (cuDNN / cuBLAS). No model is
+  pinned to a Hub revision (MiniLM, DistilBERT, Qwen2.5, SmolLM2); only the datasets are.
 
 ### 4.7 Tests and CI
 
 - `pytest.ini` defines the `heavy` marker for tests that need TensorFlow, PyTorch,
   transformers or model downloads.
 - CI runs only `pytest -m "not heavy"`, so it needs `requirements.txt` alone.
-- There is one test file per module. Typical checks:
+- Tests are grouped by module or script (16 files; `config.py` and `tracking.py` have
+  none of their own). Typical checks:
   - the split adds up and has no overlap (ids, texts or near-duplicate keys);
   - the metrics schema;
   - PCA against scikit-learn up to sign;
@@ -491,7 +504,7 @@ reaching the README or the resume.
 | "Done when" per day | each day has a concrete finish condition (table in section 2.1) | Days 1–3 and 11 met |
 | Test set | used only for final evaluation, never for tuning | enforced: tuning grids use `val` only; each test split is scored once per run |
 | Fixed split | read-only after Day 1 | enforced by `data.save_splits` |
-| Resume numbers | only from `RESUME_NUMBERS.md` | generated; currently "do not use" for every bullet |
+| Resume numbers | only from `RESUME_NUMBERS.md` | generated; bullets 1 and 2 say "do not use yet" |
 | Skills line | PyTorch, TensorFlow/Keras after Days 4–6; Hugging Face after Days 5–6; Unsloth after Day 10; LangChain after Day 12; "Hypothesis testing" after Day 7 | implemented as file checks in `reporting.py` (section 6.2); Unsloth also needs `params.train_backend = unsloth` in `llm_lora.json`; today only scikit-learn is YES |
 
 **Fallbacks** (plan section 10). These are decisions you make when a gate fails:
@@ -499,7 +512,7 @@ reaching the README or the resume.
 | If… | Then… |
 |---|---|
 | Local TensorFlow install fails | run `train_keras.py` in Colab (the notebook has a cell); log it in DEBUG_LOG |
-| Colab disconnects | every run saves checkpoints and predictions; keep runs under 30 min; rerun evaluation with `--eval-only` (DistilBERT) |
+| Colab disconnects | Colab deletes its files when the session ends: download `results.zip` after every finished run, and keep runs under 30 min. An interrupted DistilBERT training run must be rerun; `--eval-only` only re-evaluates a finished checkpoint (it needs `training_info.json`, written after the last epoch) |
 | Unsloth install or model load fails twice | stop at Day 8, skip Days 9–10, do **not** claim Unsloth; use the time for a second DistilBERT seed (Day 7) |
 | Dataset fails to load | `python scripts/prepare_data.py --source fallback` (the parquet mirror); note it in the README |
 | Time runs short | minimum path: Days 1–7, 13, 14 |
@@ -917,7 +930,7 @@ python scripts/make_results_table.py --update-readme --count-tests
 python scripts/push_to_hub.py           # dry run: writes results/model_card/README.md
 ```
 
-Smoke runs (tiny data, CPU, about a minute each; outputs only in `results/smoke/`):
+Smoke runs (tiny data, CPU; outputs only in `results/smoke/` and `checkpoints/smoke/`):
 
 ```bash
 python scripts/run_baseline.py --smoke
