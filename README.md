@@ -9,6 +9,10 @@ central-bank text.
 > `scripts/make_results_table.py --update-readme`; nothing between the markers is written
 > by hand. Models that have not been trained yet are shown as *not run yet*.
 
+**Documentation:** [`docs/PROJECT_GUIDE.md`](docs/PROJECT_GUIDE.md) covers the project's
+status, the remaining steps, the architecture, the tech stack and design decisions. The
+mathematics behind every model and test is in [`docs/math/`](docs/math/).
+
 ## Problem
 
 Classify short English financial news posts (headline-style tweets such as
@@ -212,6 +216,7 @@ fin-news-sentiment-lab/
 ├── requirements-gpu.txt             # Colab/Kaggle GPU, adds Unsloth
 ├── pyproject.toml, pytest.ini       # package + ruff config; pytest `heavy` marker
 ├── .github/workflows/ci.yml
+├── docs/                            # PROJECT_GUIDE.md + math/ (the mathematics, one chapter per part)
 ├── data/
 │   ├── raw/                         # download cache (gitignored)
 │   ├── splits/                      # fixed train/val/test CSVs + split_report.json
@@ -239,7 +244,14 @@ fin-news-sentiment-lab/
 - **No market validation:** sentiment labels are not checked against actual price moves,
   so nothing here says the predictions are useful for trading.
 - **RAG evaluation measures retrieval only:** hit@k checks whether the right source file
-  is retrieved, not whether the generated answer is correct.
+  is retrieved, not whether the generated answer is correct. It comes from a small set of
+  hand-written questions and has no confidence interval, and the best chunk size is picked
+  on those same questions, so its score is optimistic.
+- **Models differ in more than architecture:** the Keras model removes links and uses
+  balanced class weights; DistilBERT sees the raw text and uses an unweighted loss. A gap
+  between them mixes these choices with the architecture.
+- **Training times are not comparable:** the models run on different hardware (laptop
+  CPU or Colab GPU), and the scripts do not all time the same span of work.
 
 ## Logs
 
