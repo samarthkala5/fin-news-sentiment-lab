@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 
@@ -15,6 +16,11 @@ from fnsl import config, metrics
 
 @pytest.mark.skipif(shutil.which("git") is None, reason="git not installed")
 def test_git_commit_marks_uncommitted_code_dirty(tmp_path, monkeypatch):
+    # When pytest runs inside a git hook, git exports GIT_INDEX_FILE etc.; drop them so
+    # every git call below works on the tmp repo, never on the outer one.
+    for name in [key for key in os.environ if key.startswith("GIT_")]:
+        monkeypatch.delenv(name)
+
     def git(*args):
         subprocess.run(["git", *args], cwd=tmp_path, check=True, capture_output=True)
 
@@ -22,8 +28,9 @@ def test_git_commit_marks_uncommitted_code_dirty(tmp_path, monkeypatch):
     (tmp_path / "src").mkdir()
     (tmp_path / "src" / "a.py").write_text("x = 1\n")
     git("add", ".")
+    # No signing and no hooks from the machine's global git config in this throwaway repo.
     git("-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false",
-        "commit", "-q", "-m", "init")  # fmt: skip
+        "-c", "core.hooksPath=/dev/null", "commit", "-q", "-m", "init")  # fmt: skip
     monkeypatch.setattr(config, "ROOT", tmp_path)
     clean = metrics.git_commit()
     assert clean != "unknown" and not clean.endswith("-dirty")
