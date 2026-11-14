@@ -550,12 +550,31 @@ def _bullet_2(
                 f"{len(rag['configs'])} chunk sizes, picked on the same questions) ({paths['rag']})"
             )
         lines.append(f"- Labelled RAG questions: {rag.get('n_questions', '-')} ({paths['rag']})")
+    if not lora_ok:
+        unsloth_part = "do not use yet."
+    elif trained_with_unsloth(records):
+        unsloth_part = "numbers available."
+    else:
+        unsloth_part = (
+            "numbers available, but the adapter was not trained with --backend unsloth: "
+            'replace "with Unsloth" by "with Hugging Face PEFT".'
+        )
     lines += [
         "",
-        "Unsloth part: " + ("numbers available." if lora_ok else "do not use yet."),
+        "Unsloth part: " + unsloth_part,
         "RAG part: " + ("numbers available." if rag_ok else "do not use yet."),
     ]
     return "\n".join(lines)
+
+
+def trained_with_unsloth(records: dict[str, dict]) -> bool:
+    """True only if llm_lora.json says its adapter was trained by the Unsloth backend.
+
+    train_unsloth.py also has a plain Hugging Face fallback (--backend hf). A model trained
+    that way is still a LoRA model, but it is no evidence for the Unsloth skill.
+    """
+    params = records.get("llm_lora", {}).get("params") or {}
+    return params.get("train_backend") == "unsloth"
 
 
 def _bullet_3(test_counts: dict[str, Any] | None) -> str:
@@ -645,7 +664,11 @@ def _skills(
         ("PyTorch", "distilbert" in records, f"{metrics_dir}/distilbert.json"),
         ("Hugging Face", "distilbert" in records, f"{metrics_dir}/distilbert.json"),
         ("TensorFlow/Keras", "keras_bilstm" in records, f"{metrics_dir}/keras_bilstm.json"),
-        ("Unsloth", "llm_lora" in records, f"{metrics_dir}/llm_lora.json"),
+        (
+            "Unsloth",
+            trained_with_unsloth(records),
+            f"{metrics_dir}/llm_lora.json with params.train_backend = unsloth",
+        ),
         ("LangChain", rag is not None, paths["rag"]),
         (
             "Hypothesis testing (McNemar, bootstrap CI)",

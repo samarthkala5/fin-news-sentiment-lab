@@ -273,8 +273,9 @@ def test_resume_with_rag_subset_model_and_test_counts():
         "comparison": "results/metrics/comparison.json",
         "rag": "results/metrics/rag_eval.json",
     }
+    lora = {**_record("llm_lora", 0.61, 50), "params": {"train_backend": "unsloth"}}
     text = reporting.resume_numbers_md(
-        records={"llm_lora": _record("llm_lora", 0.61, 50)},
+        records={"llm_lora": lora},
         comparison=None,
         rag=RAG,
         n_test_full=60,
@@ -299,6 +300,28 @@ PATHS = {
     "comparison": "results/metrics/comparison.json",
     "rag": "results/metrics/rag_eval.json",
 }
+
+
+def test_unsloth_claim_needs_an_unsloth_trained_adapter():
+    # --backend hf is the fallback for when Unsloth fails. The plan says: do not claim
+    # Unsloth then, even though llm_lora.json exists and its number is usable.
+    for backend, skill, part in [
+        ("unsloth", "- Unsloth: YES", "Unsloth part: numbers available."),
+        ("hf", "- Unsloth: NO", 'replace "with Unsloth" by "with Hugging Face PEFT"'),
+        (None, "- Unsloth: NO", 'replace "with Unsloth" by "with Hugging Face PEFT"'),
+    ]:
+        lora = {**_record("llm_lora", 0.61, 60), "params": {"train_backend": backend}}
+        text = reporting.resume_numbers_md(
+            records={"llm_lora": lora},
+            comparison=None,
+            rag=None,
+            n_test_full=60,
+            test_counts=None,
+            paths=PATHS,
+            commit="abc1234",
+            timestamp="2026-01-01T00:00:00+00:00",
+        )
+        assert skill in text and part in text, backend
 
 
 def _ci_entry(macro_f1: float, n: int = 60) -> dict:
