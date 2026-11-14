@@ -185,8 +185,9 @@ clones the repo (`REPO_URL` / `BRANCH`; never paste a token), installs
 | 10 | `python scripts/train_unsloth.py --mode eval` | `llm_lora` on the full test split |
 | 10 (optional) | `python scripts/train_unsloth.py --mode zero-shot --n-test 0` | zero-shot on the full test split, so McNemar can pair it |
 
-Run Days 9 and 10 in the same Colab session, or include the adapter in the zip (a flag in
-the last cell): a new session starts without `checkpoints/`. Back on the laptop, unzip into
+Run Days 9 and 10 in the same Colab session: a new session starts without `checkpoints/`,
+so the adapter would have to be uploaded again (a flag in the last cell adds it to the zip
+to keep a copy). Back on the laptop, unzip into
 the repo, run `python scripts/compare_models.py` and
 `python scripts/make_results_table.py --update-readme --count-tests`, run the tests, and
 commit the new files in `results/`.
