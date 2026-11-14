@@ -1,0 +1,112 @@
+{
+  "model": "kmeans_minilm",
+  "kind": "clustering",
+  "dataset": "zeroshot/twitter-financial-news-sentiment",
+  "split": "train",
+  "n": 8241,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "seed": 42,
+  "git_commit": "9d28770",
+  "timestamp": "2026-11-14T10:52:31+00:00",
+  "smoke": false,
+  "n_init": 10,
+  "silhouette_distance": "euclidean on L2-normalised embeddings (same ranking as cosine distance)",
+  "labels": [
+    "Bearish",
+    "Bullish",
+    "Neutral"
+  ],
+  "label_counts": {
+    "Bearish": 1235,
+    "Bullish": 1666,
+    "Neutral": 5340
+  },
+  "pca_explained_variance_ratio_2d": [
+    0.03825704903529852,
+    0.02780172422405417
+  ],
+  "runs": [
+    {
+      "k": 3,
+      "silhouette": 0.011747652664780617,
+      "ari": 0.04980586796443287,
+      "nmi": 0.05126883729245753,
+      "contingency": [
+        [
+          463,
+          936,
+          2014
+        ],
+        [
+          263,
+          219,
+          2355
+        ],
+        [
+          509,
+          511,
+          971
+        ]
+      ],
+      "cluster_majority_label": [
+        "Neutral",
+        "Neutral",
+        "Neutral"
+      ],
+      "cluster_purity": [
+        0.5900966891297978,
+        0.8301022206556221,
+        0.4876946258161728
+      ],
+      "overall_purity": 0.6479796141244994
+    },
+    {
+      "k": 5,
+      "silhouette": 0.011413744650781155,
+      "ari": 0.04271496306038227,
+      "nmi": 0.054486966337385,
+      "contingency": [
+        [
+          74,
+          156,
+          1073
+        ],
+        [
+          315,
+          507,
+          846
+        ],
+        [
+          350,
+          245,
+          858
+        ],
+        [
+          204,
+          145,
+          1773
+        ],
+        [
+          292,
+          613,
+          790
+        ]
+      ],
+      "cluster_majority_label": [
+        "Neutral",
+        "Neutral",
+        "Neutral",
+        "Neutral",
+        "Neutral"
+      ],
+      "cluster_purity": [
+        0.8234842670759785,
+        0.5071942446043165,
+        0.5905024088093599,
+        0.8355325164938737,
+        0.46607669616519176
+      ],
+      "overall_purity": 0.6479796141244994
+    }
+  ]
+}

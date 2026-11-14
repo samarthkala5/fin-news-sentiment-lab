@@ -1,0 +1,25 @@
+{
+  "kind": "comparison",
+  "n_resamples": 2000,
+  "alpha": 0.05,
+  "seed": 42,
+  "smoke": false,
+  "predictions_dir": "results/predictions",
+  "git_commit": "9d28770",
+  "timestamp": "2026-11-14T10:52:42+00:00",
+  "models": {
+    "tfidf_logreg": {
+      "n": 1767,
+      "macro_f1": 0.7389079170161041,
+      "ci_low": 0.7152090660255818,
+      "ci_high": 0.7618545147594059,
+      "accuracy": 0.8041878890775326,
+      "acc_ci_low": 0.7860780984719864,
+      "acc_ci_high": 0.8223118279569892
+    }
+  },
+  "pairs": [],
+  "skipped_pairs": [],
+  "seed_runs": {},
+  "skipped_models": []
+}
