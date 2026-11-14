@@ -69,8 +69,12 @@ def compute_metrics(y_true, y_pred) -> dict[str, Any]:
 
 
 def git_commit() -> str:
-    """Short hash of HEAD, with '-dirty' if tracked code in src/ or scripts/ has
-    uncommitted changes. Returns 'unknown' outside a git checkout."""
+    """Short hash of HEAD, with '-dirty' if the code in src/ or scripts/ differs from it.
+
+    Modified files and new, not-yet-committed (untracked) files both count, so a result
+    produced by code that HEAD does not contain is never stamped with a clean hash.
+    Ignored files (__pycache__, *.egg-info) do not count. Returns 'unknown' outside a git
+    checkout."""
     try:
         sha = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
@@ -80,7 +84,7 @@ def git_commit() -> str:
             check=True,
         ).stdout.strip()
         changes = subprocess.run(
-            ["git", "status", "--porcelain", "--untracked-files=no", "--", "src", "scripts"],
+            ["git", "status", "--porcelain", "--untracked-files=normal", "--", "src", "scripts"],
             cwd=config.ROOT,
             capture_output=True,
             text=True,

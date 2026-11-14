@@ -3,12 +3,42 @@
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 
 import numpy as np
 import pandas as pd
 import pytest
 
 from fnsl import config, metrics
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="git not installed")
+def test_git_commit_marks_uncommitted_code_dirty(tmp_path, monkeypatch):
+    def git(*args):
+        subprocess.run(["git", *args], cwd=tmp_path, check=True, capture_output=True)
+
+    git("init", "-q")
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "a.py").write_text("x = 1\n")
+    git("add", ".")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false",
+        "commit", "-q", "-m", "init")  # fmt: skip
+    monkeypatch.setattr(config, "ROOT", tmp_path)
+    clean = metrics.git_commit()
+    assert clean != "unknown" and not clean.endswith("-dirty")
+
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / "new_model.py").write_text("")  # new, never committed
+    assert metrics.git_commit() == clean + "-dirty"
+    (tmp_path / "scripts" / "new_model.py").unlink()
+
+    (tmp_path / "src" / "a.py").write_text("x = 2\n")  # committed file, now edited
+    assert metrics.git_commit() == clean + "-dirty"
+    (tmp_path / "src" / "a.py").write_text("x = 1\n")
+
+    (tmp_path / "notes.txt").write_text("")  # files outside src/ and scripts/ do not count
+    assert metrics.git_commit() == clean
 
 
 def test_compute_metrics_perfect_and_known_case():
