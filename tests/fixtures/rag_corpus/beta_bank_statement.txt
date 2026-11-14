@@ -1,0 +1,6 @@
+Source: https://example.org/test-fixtures/beta (made-up test fixture, not a real document)
+TEST FIXTURE: invented text for unit tests. Beta Bank does not exist.
+
+The Beta Bank council kept the glacier facility unchanged at two percent. The council also decided to end its saxophone bond purchases at the end of the quarter.
+
+Council members noted that snowfall in the northern valleys slowed construction. They agreed that the glacier facility remains the main tool for steering short-term borrowing costs.

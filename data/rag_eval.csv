@@ -1,0 +1,4 @@
+question,source_file
+EXAMPLE: Which new instrument did the ECB Governing Council approve when it raised its key interest rates by 50 basis points?,ecb_monetary_policy_decisions_2022-07-21.txt
+EXAMPLE: By how much did the Federal Reserve plan to increase its holdings of Treasury securities when the coronavirus hit?,fed_fomc_statement_2020-03-15.txt
+EXAMPLE: What did the FOMC say the invasion of Ukraine by Russia would do to US inflation?,fed_fomc_statement_2022-03-16.txt

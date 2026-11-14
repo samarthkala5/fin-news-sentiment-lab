@@ -1,0 +1,6 @@
+Source: https://example.org/test-fixtures/alpha (made-up test fixture, not a real document)
+TEST FIXTURE: invented text for unit tests. Alpha Bank does not exist.
+
+The Alpha Bank board raised the lighthouse rate by half a point today. Board members said the pineapple index of consumer prices kept rising during the spring.
+
+The board expects to review the lighthouse rate again at its next meeting. It will watch the pineapple index, wages in the harbour district and the price of rope before deciding on any further step.

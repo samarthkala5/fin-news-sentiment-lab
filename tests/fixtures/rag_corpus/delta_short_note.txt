@@ -1,0 +1,2 @@
+Source: https://example.org/test-fixtures/delta (made-up test fixture, not a real document)
+TEST FIXTURE: Delta Bank note. The kiwi window opens on Monday.

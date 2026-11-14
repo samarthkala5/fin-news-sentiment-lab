@@ -1,0 +1,6 @@
+Source: https://example.org/test-fixtures/gamma (made-up test fixture, not a real document)
+TEST FIXTURE: invented text for unit tests. Gamma Bank does not exist.
+
+Minutes of the Gamma Bank committee. The committee discussed the volcano reserve requirement and the new origami lending scheme for small farms.
+
+Several members wanted to lower the volcano reserve requirement next year. Others preferred to wait until the origami lending scheme had been running for six months.
