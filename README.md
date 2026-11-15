@@ -11,7 +11,8 @@ central-bank text.
 
 **Documentation:** [`docs/PROJECT_GUIDE.md`](docs/PROJECT_GUIDE.md) covers the project's
 status, the remaining steps, the architecture, the tech stack and design decisions. The
-mathematics behind every model and test is in [`docs/math/`](docs/math/).
+mathematics behind every model and test is in [`docs/math/`](docs/math/). To set the
+project up on another machine, see [`docs/HANDOFF.md`](docs/HANDOFF.md).
 
 ## Problem
 
