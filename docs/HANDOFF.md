@@ -1,7 +1,8 @@
 # Handoff: continue fin-news-sentiment-lab on another machine
 
-State on 2026-11-15: the latest commit on branch `claude/project-skeleton-build-dj1aj6` is
-`bdeec3a`. That branch is the only one on GitHub (there is no `main` yet). CI is green.
+State on 2026-11-15: branch `claude/project-skeleton-build-dj1aj6` is the only branch on
+GitHub (there is no `main` yet). The last commit before this file was added is `bdeec3a`;
+the commits that add this file come after it. CI is green.
 
 The prompt below is for Claude Code on the new machine. Open a terminal in an empty folder
 where you want the project, start `claude`, and paste everything between the lines.
