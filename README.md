@@ -198,8 +198,9 @@ Run Days 9 and 10 in the same Colab session: a new session starts without `check
 so the adapter would have to be uploaded again (a flag in the last cell adds it to the zip
 to keep a copy). Back on the laptop, unzip into
 the repo, run `python scripts/compare_models.py` and
-`python scripts/make_results_table.py --update-readme --count-tests`, run the tests, and
-commit the new files in `results/`.
+`python scripts/make_results_table.py --update-readme --count-tests`, run the tests,
+commit the new files in `results/`, and push to `main`: both notebooks clone `main`, so the
+next GPU session and the Kaggle report see only what you have pushed.
 
 [`notebooks/kaggle_report.ipynb`](notebooks/kaggle_report.ipynb) is the public report. It
 trains nothing; it reads only committed files (`data/splits/`, `results/`) and plots them.

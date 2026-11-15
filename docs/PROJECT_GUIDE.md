@@ -83,9 +83,9 @@ internship, so every claim must survive an interview:
 | 5 | DistilBERT training script | ✅ | smoke only | smoke passes locally ✅; Colab run shows falling loss ❌ | **You:** Colab run |
 | 6 | Evaluate DistilBERT, results table, reading log | ✅ table generator | — | table shows TF-IDF, Keras and DistilBERT | Needs Days 4–5 runs + FinBERT entry |
 | 7 | McNemar + bootstrap comparison | ✅ | ✅ (one model only) | every pair listed with significance | Needs at least 2 models |
-| 8 | Unsloth zero-shot | ✅ | never run (no GPU) | model loads, labels parse | **You:** Colab |
-| 9 | LoRA fine-tune | ✅ | never run | adapter saved, loss falls | **You:** Colab |
-| 10 | LoRA evaluation, full comparison | ✅ | never run | table and comparison cover 4 models | **You:** Colab, then compare |
+| 8 | Unsloth zero-shot | ✅ | smoke only (HF backend; the Unsloth path never ran, no GPU) | model loads, labels parse | **You:** Colab |
+| 9 | LoRA fine-tune | ✅ | smoke only (HF backend) | adapter saved, loss falls | **You:** Colab |
+| 10 | LoRA evaluation, full comparison | ✅ | smoke only (HF backend) | table and comparison cover 4 models | **You:** Colab, then compare |
 | 11 | LangChain RAG pipeline | ✅ | ✅ index + demo answer | a sample question returns relevant chunks and an answer citing its source | Done (check it yourself) |
 | 12 | RAG evaluation | ✅ | smoke only | hit@3 reported for two chunk sizes | **You:** write 20–30 questions |
 | 13 | README, Kaggle notebook, reading log | ✅ README + notebook | — | notebook public, README renders | **You:** publish, write |
@@ -170,7 +170,8 @@ treats that as a hypothesis, not a result.
 ## 3. What you need to do
 
 In order. After every step that produces results, run the two refresh commands, check the
-tests, and commit:
+tests, commit, and push to `main`. Both notebooks clone `main` from GitHub, so they see
+only what you have pushed:
 
 ```bash
 python scripts/compare_models.py
@@ -180,13 +181,22 @@ python scripts/compare_models.py
 python scripts/make_results_table.py --update-readme --count-tests
 ```
 
+```bash
+git push
+```
+
 1. **Put the code on `main` and make the repository public.** The remote has only this
-   branch, and the Colab notebook clones `main` without a token, so the repository must be
+   branch, and the notebooks clone `main` without a token, so the repository must be
    public. Create `main` from the branch, then set `main` as the default branch on GitHub:
    ```bash
    git push origin claude/project-skeleton-build-dj1aj6:main
    ```
-   Until then, set `BRANCH = "claude/project-skeleton-build-dj1aj6"` in the notebook.
+   Then work on `main` locally, so that a plain `git push` updates it:
+   ```bash
+   git fetch origin && git switch -c main --track origin/main
+   ```
+   Until `main` exists, set `BRANCH = "claude/project-skeleton-build-dj1aj6"` in the
+   notebooks. Push any code change from section 3.1 before the Colab runs in steps 4–5.
 2. **Local setup** (once):
    ```bash
    python -m venv .venv && source .venv/bin/activate
@@ -215,7 +225,8 @@ python scripts/make_results_table.py --update-readme --count-tests
    run `python scripts/eval_rag.py`, refresh, and commit.
 7. **Day 13.** Write the README *Findings* section (which model wins, whether the gap is
    significant, the cost of each extra point of macro-F1). Write the RAG paper entry.
-   Publish `notebooks/kaggle_report.ipynb` on Kaggle. Review the *(skeleton build)*
+   Once every result is pushed to `main`, publish `notebooks/kaggle_report.ipynb` on Kaggle
+   (it clones `main` and reads only the committed files). Review the *(skeleton build)*
    entries in `DEBUG_LOG.md` and add your own.
 8. **Day 14.** Push the model card with the checkpoint you downloaded in step 4 (unzipped
    into `checkpoints/distilbert/best`):
@@ -346,7 +357,8 @@ fin-news-sentiment-lab/
 │   ├── llm_lora.py                prompts, label parser, model loading, LoRA, generation
 │   ├── stats.py                   bootstrap CIs, McNemar, paired bootstrap, Holm
 │   ├── reporting.py               README sections and RESUME_NUMBERS.md text
-│   └── rag/                       ingest (load + chunk), retriever (FAISS), evaluate (hit@k)
+│   └── rag/                       ingest (load, chunk, embed, build/save/load the FAISS index),
+│                                  retriever (top-k search + answer), evaluate (hit@k)
 ├── scripts/                       prepare_data, run_baseline, run_kmeans, train_keras,
 │                                  train_distilbert, train_unsloth, compare_models,
 │                                  make_results_table, build_rag, eval_rag, push_to_hub
@@ -514,7 +526,7 @@ reaching the README or the resume.
 | Local TensorFlow install fails | run `train_keras.py` in Colab (the notebook has a cell); log it in DEBUG_LOG |
 | Colab disconnects | Colab deletes its files when the session ends: download `results.zip` after every finished run, and keep runs under 30 min. An interrupted DistilBERT training run must be rerun; `--eval-only` only re-evaluates a finished checkpoint (it needs `training_info.json`, written after the last epoch) |
 | Unsloth install or model load fails twice | stop at Day 8, skip Days 9–10, do **not** claim Unsloth; use the time for a second DistilBERT seed (Day 7) |
-| Dataset fails to load | `python scripts/prepare_data.py --source fallback` (the parquet mirror); note it in the README |
+| Dataset fails to load | a Day 1 decision, now passed: `python scripts/prepare_data.py --source fallback` (the parquet mirror); note it in the README |
 | Time runs short | minimum path: Days 1–7, 13, 14 |
 | Test set gives wide CIs | report them; never tune on the test set |
 
@@ -893,8 +905,9 @@ Every chapter starts with the status of its part and what is left for you, and e
 
 ## 9. Interview questions from the plan
 
-Each day of `PROJECT_PLAN.md` ends with "I should be able to explain". Here is where each
-answer lives in this guide. The questions marked *after your run* need your own results.
+Days 1–13 of `PROJECT_PLAN.md` each end with an "Explain" item ("I should be able to
+explain"); Day 14 has none. Here is where each answer lives in this guide. The questions
+marked *after your run* need your own results.
 
 | Day | Question | Where |
 |---|---|---|
